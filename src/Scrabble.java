@@ -2,12 +2,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class Scrabble {
 
-	String letters;
+	String wordMatch;
 	final String BLANK = "&";
 
 	private String getSorted(String word) {
@@ -16,22 +17,34 @@ public class Scrabble {
 		return String.valueOf(wordArray);
 	}
 
-	public Set<String> getWordSet(ArrayList<String> wordsList) {
-		Set<String> wordSet = new HashSet<String>();
+	public Map<String, String> getWordMap(ArrayList<String> wordsList, int frontSpaces, int blankSpaces, char letter) {
+		Map<String, String> wordSet = new HashMap<String, String>();
 		for (String word : wordsList) {
-			wordSet.add(getSorted(word));
+			if (isCorrect(word, frontSpaces, blankSpaces, letter)) {
+				// System.out.println(word);
+				wordSet.put(getSorted(word), word);
+			}
 		}
 		return wordSet;
 	}
 
-	public Set<String> readFile(String path) throws Exception {
-		return getWordSet((ArrayList<String>) Files.readAllLines(Paths.get(path)));
+	private boolean isCorrect(String word, int frontSpaces, int backSpaces, char letter) {
+		// return word.matches("[A-Z]{0," + frontSpaces + "}" + letter +
+		// "[A-Z]{0," + backSpaces + "}");
+		return word.matches(String.format("[A-Z]{0,%d}%c[A-Z]{0,%d}", frontSpaces, letter, backSpaces));
+
 	}
 
-	public boolean isValid(String s, Set<String> dict, int numOfBlanks) {
+	public Map<String, String> readFile(String path, int frontSpaces, int blankSpaces, char letter) throws Exception {
+		return getWordMap((ArrayList<String>) Files.readAllLines(Paths.get(path)), frontSpaces, blankSpaces, letter);
+	}
+
+	public boolean isValid(String s, Map<String, String> dict, int numOfBlanks, char letter) {
 		String regstr = s.replaceAll("", ".*");
-		for (String word : dict) {
-			if (word.matches(regstr) && (word.length() - s.length() == numOfBlanks)) {
+		for (Map.Entry<String, String> entry : dict.entrySet()) {
+			if (entry.getKey().matches(regstr) && (entry.getKey().length() - s.length() <= numOfBlanks)) {
+				//System.out.println(entry.getKey() + " " + entry.getValue());
+				wordMatch = entry.getValue();
 				return true;
 			}
 		}
@@ -87,18 +100,28 @@ public class Scrabble {
 		return score;
 	}
 
-	public int getMaxScore(String str, Set<String> dictionary) {
+	public int getMaxScore(String str, Map<String, String> dictionary, char letter) {
 		int maxScore = 0;
+		String maxWord = "";
 		String sortedStrWithoutBlank = removeBlanksSorted(str);
 		Set<String> permutations = Permutations.permutationFinder(sortedStrWithoutBlank);
 		int numOfBlanks = str.length() - sortedStrWithoutBlank.length();
 
 		for (String permWord : permutations) {
-			if (isValid(permWord, dictionary, numOfBlanks) && maxScore < totalScore(permWord)) {
+			if (isValid(getPermWord(permWord, letter), dictionary, numOfBlanks, letter) && maxScore < totalScore(permWord)) {
 				maxScore = totalScore(permWord);
+				maxWord = wordMatch;
 			}
 		}
+		
+		System.out.println(maxWord);
 		return maxScore;
+	}
+
+	private String getPermWord(String permWord, char letter) {
+	//	if(permWord.contains(String.valueOf(letter)))
+		//	return permWord;
+		return getSorted(permWord + letter);
 	}
 
 	private String removeBlanksSorted(String str) {
@@ -109,7 +132,11 @@ public class Scrabble {
 		Scrabble sc = new Scrabble();
 		String filePath = args[0];
 		String input = args[1].toUpperCase();
-		Set<String> dictionary = sc.readFile(filePath);
-		System.out.println(sc.getMaxScore(input, dictionary));
+		int frontSpaces  = Integer.parseInt(args[2]);
+		char letter = args[3].charAt(0);
+		int backSpaces = Integer.parseInt(args[4]); 
+		Map<String, String> dictionary = sc.readFile(filePath, frontSpaces, backSpaces, letter);
+		System.out.println(sc.getMaxScore(input, dictionary, 'K'));
+		// System.out.println(dictionary);
 	}
 }

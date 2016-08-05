@@ -11,7 +11,7 @@ public class Scrabble {
 	final String BLANK = "&";
 
 	private String getSorted(String word) {
-		char[] wordArray = word.toCharArray();
+		char[] wordArray = word.toUpperCase().toCharArray();
 		Arrays.sort(wordArray);
 		return String.valueOf(wordArray);
 	}
@@ -108,7 +108,7 @@ public class Scrabble {
 	public static void main(String args[]) throws Exception {
 		Scrabble sc = new Scrabble();
 		String filePath = args[0];
-		String input = args[1];
+		String input = args[1].toUpperCase();
 		Set<String> dictionary = sc.readFile(filePath);
 		System.out.println(sc.getMaxScore(input, dictionary));
 	}

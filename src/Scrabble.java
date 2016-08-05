@@ -15,28 +15,27 @@ public class Scrabble {
 		Arrays.sort(wordArray);
 		return String.valueOf(wordArray);
 	}
-	
+
 	public Set<String> getWordSet(ArrayList<String> wordsList) {
 		Set<String> wordSet = new HashSet<String>();
-		for(String word : wordsList) {
+		for (String word : wordsList) {
 			wordSet.add(getSorted(word));
 		}
 		return wordSet;
 	}
-	
+
 	public Set<String> readFile(String path) throws Exception {
 		return getWordSet((ArrayList<String>) Files.readAllLines(Paths.get(path)));
 	}
 
 	public boolean isValid(String s, Set<String> dict, int numOfBlanks) {
 		String regstr = s.replaceAll("", ".*");
-		for(String word : dict) {
-			if(word.matches(regstr) && (word.length() - s.length() == numOfBlanks)) {
-				System.out.println(word);
+		for (String word : dict) {
+			if (word.matches(regstr) && (word.length() - s.length() == numOfBlanks)) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -80,8 +79,6 @@ public class Scrabble {
 		}
 
 	}
-	
-	
 
 	public int totalScore(String s) {
 		int score = 0;
@@ -89,24 +86,21 @@ public class Scrabble {
 			score += scoreLetter(s.charAt(i));
 		return score;
 	}
-	
+
 	public int getMaxScore(String str, Set<String> dictionary) {
 		int maxScore = 0;
 		String sortedStrWithoutBlank = removeBlanksSorted(str);
-		Set<String> permutations = Permutations.permutationFinder(str);
+		Set<String> permutations = Permutations.permutationFinder(sortedStrWithoutBlank);
 		int numOfBlanks = str.length() - sortedStrWithoutBlank.length();
-		
-		System.out.println(sortedStrWithoutBlank);
-		
-		for(String permWord : permutations) {
-			if(isValid(permWord, dictionary, numOfBlanks) && maxScore < totalScore(permWord)) {
+
+		for (String permWord : permutations) {
+			if (isValid(permWord, dictionary, numOfBlanks) && maxScore < totalScore(permWord)) {
 				maxScore = totalScore(permWord);
 			}
 		}
 		return maxScore;
 	}
-	
-	
+
 	private String removeBlanksSorted(String str) {
 		return getSorted(str.replaceAll(BLANK, ""));
 	}
@@ -116,6 +110,6 @@ public class Scrabble {
 		String filePath = args[0];
 		String input = args[1];
 		Set<String> dictionary = sc.readFile(filePath);
-		System.out.println(sc.getMaxScore(input, dictionary));		
+		System.out.println(sc.getMaxScore(input, dictionary));
 	}
 }

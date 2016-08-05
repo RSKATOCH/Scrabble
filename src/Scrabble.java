@@ -19,16 +19,42 @@ public class Scrabble {
 			
 			public int scoreLetter(char c){
 				switch(c){
-				case 'a':
-					return 1;
-				case 'b':
-					return 8;
-				case 'c':
-					return 3;
-				case 'd':
-					return 2;
-				case 'e':
-					return 1;
+					case 'A':
+					case 'E':
+					case 'I':
+					case 'O':
+					case 'U':
+					case 'L':
+					case 'N':
+					case 'R':
+					case 'S':
+					case 'T': 
+						return 1;
+					case 'D':
+					case 'G': 
+						return 2;
+					case 'B':
+					case 'C':
+					case 'M':
+					case 'P': 
+						return 3;
+					case 'F':
+					case 'H':
+					case 'W':
+					case 'Y':
+					case 'V': 
+						return 4;
+					case 'K': 
+						return 5;
+					case 'J':
+					case 'X': 
+						return 8;
+					case 'Z': 
+					case 'Q': 
+						return 10;
+					default:
+						return 0;
+				}
 					
 			}
 			
